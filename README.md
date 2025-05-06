@@ -1,73 +1,49 @@
-# Welcome to your Lovable project
 
-## Project info
+# Formulaire de Questions - Quizzical
 
-**URL**: https://lovable.dev/projects/824da0ff-2e8c-4136-bb8c-7fab035322dc
+Un système léger et simple de création de formulaires et de collecte de réponses, fonctionnant entièrement en local, sans base de données et sans système de login.
 
-## How can I edit this code?
+## Fonctionnalités
 
-There are several ways of editing your application.
+- Création et gestion de questions variées
+- Stockage local des questions et des réponses
+- Affichage aléatoire des questions
+- Interface administrateur pour gérer les questions
+- Visualisation et export des réponses
+- Fonctionne entièrement côté client, sans serveur
 
-**Use Lovable**
+## Types de questions supportés
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/824da0ff-2e8c-4136-bb8c-7fab035322dc) and start prompting.
+- Question ouverte (champ de texte)
+- Question fermée (Oui/Non)
+- Question à choix multiple (cases à cocher ou boutons radio)
+- Question avec choix d'images
+- Question avec choix de couleurs
+- Question de classement (par ordre de préférence)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Comment utiliser cette application
 
-**Use your preferred IDE**
+1. Accédez à la page d'administration `/admin` pour créer vos questions
+2. Choisissez le type de question et complétez les informations requises
+3. Les utilisateurs peuvent remplir le formulaire à l'adresse principale `/`
+4. Les réponses sont stockées dans localStorage et peuvent être exportées depuis la page d'administration
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Installation et démarrage
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Installer les dépendances
+npm install
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Démarrer l'application
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Stockage des données
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Pour faciliter le développement et le déploiement, cette application utilise le localStorage du navigateur pour la persistance des données. En production, vous pouvez adapter le code pour utiliser des fichiers JSON/TXT réels si nécessaire.
 
-**Use GitHub Codespaces**
+## Limitations
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/824da0ff-2e8c-4136-bb8c-7fab035322dc) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Les données sont stockées dans le navigateur (localStorage) de l'utilisateur
+- Les images doivent être hébergées en ligne (via URL)
+- Pas de système d'authentification
