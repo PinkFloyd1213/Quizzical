@@ -98,3 +98,14 @@ export const importQuestionsFromJsonFile = (file: File): Promise<Question[]> => 
     reader.readAsText(file);
   });
 };
+
+export const clearResponses = async (): Promise<boolean> => {
+  try {
+    localStorage.removeItem("responses");
+    console.log("Réponses supprimées avec succès");
+    return true;
+  } catch (error) {
+    console.error("Erreur lors de la suppression des réponses:", error);
+    return false;
+  }
+};

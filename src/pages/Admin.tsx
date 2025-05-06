@@ -3,13 +3,19 @@ import React, { useState, useEffect } from "react";
 import { Question } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
-import { loadQuestions, saveQuestions, downloadQuestionsAsJsonFile, importQuestionsFromJsonFile } from "../utils/fileUtils";
+import { loadQuestions, saveQuestions, downloadQuestionsAsJsonFile, importQuestionsFromJsonFile, clearResponses } from "../utils/fileUtils";
 import { useToast } from "../components/ui/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
+import { Button } from "../components/ui/button";
+
+const ADMIN_PASSWORD = "12131213It";
 
 const Admin: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<"questions" | "responses">("questions");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,6 +90,71 @@ const Admin: React.FC = () => {
     e.target.value = "";
   };
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      toast({
+        title: "Connexion réussie",
+        description: "Vous êtes maintenant connecté à l'interface d'administration",
+      });
+    } else {
+      toast({
+        title: "Erreur de connexion",
+        description: "Mot de passe incorrect",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClearAllQuestions = async () => {
+    try {
+      await saveQuestions([]);
+      setQuestions([]);
+      toast({
+        title: "Succès",
+        description: "Toutes les questions ont été supprimées",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression des questions:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer les questions",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto p-6 mt-20 bg-white rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-6">Administration</h1>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+          >
+            Se connecter
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <header className="mb-8">
@@ -126,27 +197,51 @@ const Admin: React.FC = () => {
 
       {activeTab === "questions" && (
         <div className="space-y-6">
-          <div className="flex justify-end space-x-3">
-            <label className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg cursor-pointer transition-colors">
-              Importer (JSON)
-              <input
-                type="file"
-                accept=".json"
-                className="hidden"
-                onChange={handleImportQuestions}
-              />
-            </label>
-            <button
-              onClick={handleExportQuestions}
-              disabled={questions.length === 0}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                questions.length === 0
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-              }`}
-            >
-              Exporter (JSON)
-            </button>
+          <div className="flex justify-between items-center">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                  Supprimer toutes les questions
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Êtes-vous absolument sûr?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. Elle supprimera définitivement toutes vos questions et ne peut pas être annulée.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearAllQuestions} className="bg-red-600 hover:bg-red-700">
+                    Supprimer
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            
+            <div className="flex space-x-3">
+              <label className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg cursor-pointer transition-colors">
+                Importer (JSON)
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleImportQuestions}
+                />
+              </label>
+              <button
+                onClick={handleExportQuestions}
+                disabled={questions.length === 0}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  questions.length === 0
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+                }`}
+              >
+                Exporter (JSON)
+              </button>
+            </div>
           </div>
 
           {loading ? (
