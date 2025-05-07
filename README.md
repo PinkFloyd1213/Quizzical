@@ -6,32 +6,33 @@ Un système léger et simple de création de formulaires et de collecte de répo
 
 - Création et gestion de questions variées via une interface administrateur
 - Stockage local des questions et des réponses (localStorage)
-- Affichage aléatoire des questions
-- Visualisation et export des réponses
-- Personnalisation du formulaire via les paramètres administrateur
-- Option pour collecter le nom et prénom du répondant au début du questionnaire
-- Système de mot de passe pour accéder à l’administration
-- Changement de mot de passe administrateur via une boîte de dialogue sécurisée
-- Interface utilisateur moderne avec composants interactifs
-- Mise en ligne automatique des images sur Imgur lors de l'ajout de questions avec choix d'images
-- Fonctionne entièrement côté client, sans serveur
+- Affichage aléatoire des questions à chaque session
+- Visualisation et export des réponses dans un fichier texte
+- Personnalisation du formulaire (ex : demander le nom du répondant)
+- Authentification protégée par mot de passe pour l'administration
+- Changement de mot de passe sécurisé via une boîte de dialogue
+- Interface utilisateur moderne avec composants interactifs (ShadCN/UI, Radix, Lucide)
+- Ajout automatique des images sur Imgur pour les questions avec images
+- Support du glisser-déposer et boutons pour classement des éléments
+- Entièrement côté client (aucun backend requis)
+- Notifications utilisateur via système de "toasts" (Sonner, Toaster)
 
 ## Types de questions supportés
 
 - Question ouverte (champ de texte)
-- Question fermée (Oui/Non)
+- Question fermée (Oui / Non)
 - Question à choix multiple (cases à cocher ou boutons radio)
 - Question avec choix d'images
 - Question avec choix de couleurs
-- Question de classement (par ordre de préférence)
+- Question de classement (ordre de préférence)
 
 ## Comment utiliser cette application
 
-1. Accédez à la page d'administration `/admin` pour créer vos questions
-2. Choisissez le type de question et complétez les informations requises
-3. Pour les choix d'image, les fichiers sont automatiquement téléversés sur Imgur
-4. Les utilisateurs peuvent remplir le formulaire à l'adresse principale `/`
-5. Les réponses sont stockées dans localStorage et peuvent être exportées depuis l’administration
+1. Accédez à la page d'administration via `/admin`
+2. Créez les questions selon les besoins (avec support image et couleurs)
+3. Activez les options dans l'onglet Paramètres (ex. collecte du nom)
+4. Partagez l’URL principale `/` pour que les utilisateurs remplissent le formulaire
+5. Visualisez et exportez les réponses via l’interface d’administration
 
 ## Installation et démarrage
 
@@ -41,3 +42,6 @@ npm install
 
 # Démarrer l'application
 npm run dev
+
+# Build l'application
+npm run build
