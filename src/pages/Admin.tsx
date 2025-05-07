@@ -1,101 +1,82 @@
+
 import React, { useState, useEffect } from "react";
-import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
 import FormSettingsComponent from "../components/admin/FormSettings";
 import AdminLogin from "../components/admin/AdminLogin";
 import AdminHeader from "../components/admin/AdminHeader";
 import QuestionsTab from "../components/admin/QuestionsTab";
-import PasswordChangeDialog from "../components/admin/PasswordChangeDialog";
+import AdminPasswordManager from "../components/admin/AdminPasswordManager";
 import ResetDataDialog from "../components/admin/ResetDataDialog";
-import { 
-  loadQuestions, 
-  saveQuestions, 
-  downloadQuestionsAsJsonFile, 
-  downloadQuestionTemplateAsJsonFile,
-  importQuestionsFromJsonFile, 
-  clearResponses, 
-  saveAdminPassword,
-  getAdminPassword,
-  loadFormSettings,
-  saveFormSettings,
-  resetAllLocalData
-} from "../utils/fileUtils";
 import { useToast } from "../hooks/use-toast";
+import { useAdminAuth } from "../hooks/useAdminAuth";
+import { useQuestionsData } from "../hooks/useQuestionsData";
+import { useFormSettings } from "../hooks/useFormSettings";
+import { useDataReset } from "../hooks/useDataReset";
+import { saveQuestions, downloadQuestionsAsJsonFile, downloadQuestionTemplateAsJsonFile } from "../utils/fileUtils";
 
 const Admin: React.FC = () => {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<"questions" | "responses" | "settings">("questions");
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState<boolean>(false);
-  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
-  const [formSettings, setFormSettings] = useState<FormSettings>({
-    collectRespondentInfo: false
-  });
   const { toast } = useToast();
+  
+  // Custom hooks
+  const { 
+    isAuthenticated, 
+    setIsAuthenticated, 
+    isFirstLogin, 
+    setIsFirstLogin,
+    handleLogin 
+  } = useAdminAuth();
+  
+  const { 
+    questions, 
+    loading, 
+    fetchQuestions, 
+    handleUpdateQuestions 
+  } = useQuestionsData();
+  
+  const { 
+    formSettings, 
+    fetchFormSettings, 
+    handleUpdateFormSettings 
+  } = useFormSettings();
+  
+  const { handleResetAllData } = useDataReset(
+    (q) => handleUpdateQuestions(q), 
+    handleUpdateFormSettings,
+    setActiveTab
+  );
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      try {
-        const loadedQuestions = await loadQuestions();
-        setQuestions(loadedQuestions);
-        
-        const settings = await loadFormSettings();
-        setFormSettings(settings);
-        
-        // Vérifier si c'est la première connexion (mot de passe par défaut)
-        const currentPassword = getAdminPassword();
-        if (currentPassword === "12345") {
-          setIsFirstLogin(true);
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
+      await fetchQuestions();
+      await fetchFormSettings();
     };
 
     fetchData();
-  }, [toast]);
+  }, []);
 
-  const handleUpdateFormSettings = async (updatedSettings: FormSettings) => {
-    try {
-      await saveFormSettings(updatedSettings);
-      setFormSettings(updatedSettings);
+  const onLogin = (password: string) => {
+    const success = handleLogin(password);
+    
+    if (success) {
+      // Ne pas afficher le toast de connexion réussie si c'est la première connexion
+      if (!isFirstLogin) {
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté à l'interface d'administration",
+        });
+      }
+      
+      // Si c'est la première connexion, ouvrir la boîte de dialogue de changement de mot de passe
+      if (isFirstLogin) {
+        setIsPasswordDialogOpen(true);
+      }
+    } else {
       toast({
-        title: "Succès",
-        description: "Paramètres mis à jour avec succès",
-      });
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour des paramètres:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour les paramètres",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateQuestions = async (updatedQuestions: Question[]) => {
-    try {
-      await saveQuestions(updatedQuestions);
-      setQuestions(updatedQuestions);
-      toast({
-        title: "Succès",
-        description: "Questions mises à jour avec succès",
-      });
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour des questions:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour les questions",
+        title: "Erreur de connexion",
+        description: "Mot de passe incorrect",
         variant: "destructive",
       });
     }
@@ -117,101 +98,19 @@ const Admin: React.FC = () => {
     });
   };
 
-  const handleImportQuestions = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleImportQuestions = async (importedQuestions: any[]) => {
     try {
-      const importedQuestions = await importQuestionsFromJsonFile(file);
       await saveQuestions(importedQuestions);
-      setQuestions(importedQuestions);
+      await fetchQuestions(); // Refresh the questions list
       toast({
         title: "Import réussi",
         description: `${importedQuestions.length} question(s) importée(s) avec succès`,
       });
     } catch (error) {
-      console.error("Erreur lors de l'importation des questions:", error);
-      toast({
-        title: "Erreur d'importation",
-        description: "Le fichier sélectionné n'est pas valide",
-        variant: "destructive",
-      });
-    }
-    
-    // Reset the input value to allow importing the same file again if needed
-    e.target.value = "";
-  };
-
-  const handleLogin = (password: string) => {
-    const currentPassword = getAdminPassword();
-    
-    if (password === currentPassword) {
-      setIsAuthenticated(true);
-      
-      // Ne pas afficher le toast de connexion réussie si c'est la première connexion
-      // Cela évitera d'avoir deux éléments UI superposés et de griser l'interface
-      if (!isFirstLogin) {
-        toast({
-          title: "Connexion réussie",
-          description: "Vous êtes maintenant connecté à l'interface d'administration",
-        });
-      }
-      
-      // Si c'est la première connexion, ouvrir la boîte de dialogue de changement de mot de passe
-      if (isFirstLogin) {
-        setIsPasswordDialogOpen(true);
-      }
-    } else {
-      toast({
-        title: "Erreur de connexion",
-        description: "Mot de passe incorrect",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleChangePassword = (newPassword: string) => {
-    saveAdminPassword(newPassword);
-    setIsPasswordDialogOpen(false);
-    setIsFirstLogin(false);
-    
-    toast({
-      title: "Succès",
-      description: "Le mot de passe administrateur a été modifié",
-    });
-    
-    // Afficher un toast de bienvenue après avoir changé le mot de passe lors de la première connexion
-    if (isFirstLogin) {
-      setTimeout(() => {
-        toast({
-          title: "Bienvenue",
-          description: "Vous êtes maintenant connecté à l'interface d'administration",
-        });
-      }, 500); // Un petit délai pour laisser le temps au toast précédent de s'afficher correctement
-    }
-  };
-
-  const handleResetAllData = async () => {
-    try {
-      await resetAllLocalData();
-      // Recharger les données après réinitialisation
-      const loadedQuestions = await loadQuestions();
-      setQuestions(loadedQuestions);
-      
-      const settings = await loadFormSettings();
-      setFormSettings(settings);
-      
-      setActiveTab("questions");
-      
-      toast({
-        title: "Réinitialisation réussie",
-        description: "Toutes les données ont été supprimées et réinitialisées",
-      });
-    } catch (error) {
-      console.error("Erreur lors de la réinitialisation des données:", error);
+      console.error("Erreur lors de la mise à jour après import:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de réinitialiser les données",
+        description: "Impossible de mettre à jour les questions après import",
         variant: "destructive",
       });
     }
@@ -220,7 +119,7 @@ const Admin: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <AdminLogin 
-        onLogin={handleLogin} 
+        onLogin={onLogin} 
         onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
         isFirstLogin={isFirstLogin}
       />
@@ -234,7 +133,6 @@ const Admin: React.FC = () => {
         setActiveTab={setActiveTab} 
       />
 
-      {/* Bouton de réinitialisation complète */}
       <div className="mb-6 flex justify-end">
         <ResetDataDialog onResetData={handleResetAllData} />
       </div>
@@ -260,12 +158,11 @@ const Admin: React.FC = () => {
         />
       )}
 
-      {/* Dialogue de changement de mot de passe */}
-      <PasswordChangeDialog 
-        isOpen={isPasswordDialogOpen}
-        onOpenChange={setIsPasswordDialogOpen}
-        onChangePassword={handleChangePassword}
+      <AdminPasswordManager
         isFirstLogin={isFirstLogin}
+        isPasswordDialogOpen={isPasswordDialogOpen}
+        setIsPasswordDialogOpen={setIsPasswordDialogOpen}
+        setIsFirstLogin={setIsFirstLogin}
       />
     </div>
   );
