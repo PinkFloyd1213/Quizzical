@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Question, FormSettings } from "../types/question";
+import { Question } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
-import FormSettings from "../components/admin/FormSettings";
+import FormSettingsComponent from "../components/admin/FormSettings";
+import { FormSettings } from "../types/question";
 import { 
   loadQuestions, 
   saveQuestions, 
@@ -360,7 +361,7 @@ const Admin: React.FC = () => {
       {activeTab === "responses" && <ResponseViewer />}
       
       {activeTab === "settings" && (
-        <FormSettings 
+        <FormSettingsComponent 
           settings={formSettings}
           onUpdateSettings={handleUpdateFormSettings}
         />

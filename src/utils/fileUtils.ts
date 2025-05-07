@@ -1,3 +1,4 @@
+
 import { Question, FormResponse, FormSettings } from "../types/question";
 
 export const loadQuestions = async (): Promise<Question[]> => {
@@ -155,4 +156,32 @@ export const getAdminPassword = (): string => {
     return '12345';
   }
   return savedPassword;
+};
+
+// Add the missing functions for ResponseViewer
+export const loadResponses = async (): Promise<string> => {
+  try {
+    return localStorage.getItem('formResponses') || '';
+  } catch (error) {
+    console.error('Error loading responses:', error);
+    return '';
+  }
+};
+
+export const downloadResponsesAsTextFile = (): void => {
+  loadResponses().then(responses => {
+    if (!responses) {
+      return;
+    }
+    
+    const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(responses);
+    const exportFileName = 'form_responses.txt';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileName);
+    document.body.appendChild(linkElement);
+    linkElement.click();
+    document.body.removeChild(linkElement);
+  });
 };

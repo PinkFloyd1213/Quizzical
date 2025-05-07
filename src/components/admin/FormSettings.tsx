@@ -1,15 +1,15 @@
 
 import React from "react";
-import { FormSettings as FormSettingsType } from "../../types/question";
+import { FormSettings } from "../../types/question";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 
 interface FormSettingsProps {
-  settings: FormSettingsType;
-  onUpdateSettings: (settings: FormSettingsType) => void;
+  settings: FormSettings;
+  onUpdateSettings: (settings: FormSettings) => void;
 }
 
-const FormSettings: React.FC<FormSettingsProps> = ({ 
+const FormSettingsComponent: React.FC<FormSettingsProps> = ({ 
   settings, 
   onUpdateSettings 
 }) => {
@@ -39,4 +39,4 @@ const FormSettings: React.FC<FormSettingsProps> = ({
   );
 };
 
-export default FormSettings;
+export default FormSettingsComponent;
