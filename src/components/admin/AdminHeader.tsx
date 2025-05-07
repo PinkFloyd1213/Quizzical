@@ -16,7 +16,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
     <header className="mb-8">
       <div className="flex items-center mb-4">
         <img 
-          src="/lovable-uploads/1bbf8a9a-7b07-4e8b-b91c-346c8356ade6.png" 
+          src="/lovable-uploads/quizicall-logo.png" 
           alt="Logo Quizicall" 
           className="h-12 mr-3"
         />

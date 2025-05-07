@@ -246,9 +246,14 @@ const Admin: React.FC = () => {
         />
       )}
 
+      {/* Rendre la boîte de dialogue modale et non fermable lors de la première connexion */}
       <PasswordChangeDialog 
         isOpen={isPasswordDialogOpen}
-        onOpenChange={setIsPasswordDialogOpen}
+        onOpenChange={(open) => {
+          if (!isFirstLogin || !open) {
+            setIsPasswordDialogOpen(open);
+          }
+        }}
         onChangePassword={handleChangePassword}
       />
     </div>

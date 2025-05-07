@@ -44,8 +44,19 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={isFirstLogin => {
+      // Si c'est la première connexion, empêcher la fermeture du dialogue
+      if (isFirstLogin) {
+        return;
+      }
+      onOpenChange(isFirstLogin);
+    }}>
+      <DialogContent className="z-50" onPointerDownOutside={e => {
+        // Empêcher la fermeture lors du clic à l'extérieur pour la première connexion
+        if (isOpen) {
+          e.preventDefault();
+        }
+      }}>
         <DialogHeader>
           <DialogTitle>Changer le mot de passe administrateur</DialogTitle>
         </DialogHeader>
