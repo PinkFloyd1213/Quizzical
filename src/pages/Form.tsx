@@ -12,7 +12,7 @@ const Form: React.FC = () => {
         <header className="mb-8 text-center flex flex-col items-center">
           <div className="flex items-center justify-center mb-4">
             <img 
-              src="/lovable-uploads/7bc3deed-7736-467c-b3e6-c4701bc2f6fa.png" 
+              src="/lovable-uploads/quizicall-logo.png" 
               alt="Logo Quizicall" 
               className="h-16 mr-3"
             />
