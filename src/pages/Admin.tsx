@@ -28,6 +28,7 @@ const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"questions" | "responses" | "settings">("questions");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState<boolean>(false);
+  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
   const [formSettings, setFormSettings] = useState<FormSettings>({
     collectRespondentInfo: false
   });
@@ -42,6 +43,12 @@ const Admin: React.FC = () => {
         
         const settings = await loadFormSettings();
         setFormSettings(settings);
+        
+        // Vérifier si c'est la première connexion (mot de passe par défaut)
+        const currentPassword = getAdminPassword();
+        if (currentPassword === "12345") {
+          setIsFirstLogin(true);
+        }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
         toast({
@@ -143,6 +150,11 @@ const Admin: React.FC = () => {
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté à l'interface d'administration",
       });
+      
+      // Si c'est la première connexion, ouvrir la boîte de dialogue de changement de mot de passe
+      if (isFirstLogin) {
+        setIsPasswordDialogOpen(true);
+      }
     } else {
       toast({
         title: "Erreur de connexion",
@@ -155,6 +167,7 @@ const Admin: React.FC = () => {
   const handleChangePassword = (newPassword: string) => {
     saveAdminPassword(newPassword);
     setIsPasswordDialogOpen(false);
+    setIsFirstLogin(false);
     
     toast({
       title: "Succès",
@@ -165,9 +178,9 @@ const Admin: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <AdminLogin 
-        onLogin={(success) => {
-          if (success) setIsAuthenticated(true);
-        }} 
+        onLogin={handleLogin} 
+        onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
+        isFirstLogin={isFirstLogin}
       />
     );
   }

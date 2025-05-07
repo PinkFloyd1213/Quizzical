@@ -1,5 +1,7 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
 
 interface AdminHeaderProps {
   activeTab: "questions" | "responses" | "settings";
@@ -55,21 +57,28 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
             Paramètres
           </button>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <button
             onClick={onOpenPasswordDialog}
             className="text-violet-600 hover:underline"
           >
             Changer le mot de passe
           </button>
-          <a
-            href="/"
-            className="text-violet-600 hover:underline"
+          <Link
+            to="/form"
+            className="text-violet-600 hover:underline flex items-center gap-1"
             target="_blank"
             rel="noopener noreferrer"
           >
             Voir le formulaire
-          </a>
+          </Link>
+          <Link
+            to="/"
+            className="text-violet-600 hover:underline flex items-center gap-1"
+          >
+            <Home className="h-4 w-4" />
+            Accueil
+          </Link>
         </div>
       </div>
     </header>
