@@ -1,15 +1,19 @@
-
 # Formulaire de Questions - Quizzical
 
 Un système léger et simple de création de formulaires et de collecte de réponses, fonctionnant entièrement en local, sans base de données et sans système de login.
 
 ## Fonctionnalités
 
-- Création et gestion de questions variées
-- Stockage local des questions et des réponses
+- Création et gestion de questions variées via une interface administrateur
+- Stockage local des questions et des réponses (localStorage)
 - Affichage aléatoire des questions
-- Interface administrateur pour gérer les questions
 - Visualisation et export des réponses
+- Personnalisation du formulaire via les paramètres administrateur
+- Option pour collecter le nom et prénom du répondant au début du questionnaire
+- Système de mot de passe pour accéder à l’administration
+- Changement de mot de passe administrateur via une boîte de dialogue sécurisée
+- Interface utilisateur moderne avec composants interactifs
+- Mise en ligne automatique des images sur Imgur lors de l'ajout de questions avec choix d'images
 - Fonctionne entièrement côté client, sans serveur
 
 ## Types de questions supportés
@@ -25,8 +29,9 @@ Un système léger et simple de création de formulaires et de collecte de répo
 
 1. Accédez à la page d'administration `/admin` pour créer vos questions
 2. Choisissez le type de question et complétez les informations requises
-3. Les utilisateurs peuvent remplir le formulaire à l'adresse principale `/`
-4. Les réponses sont stockées dans localStorage et peuvent être exportées depuis la page d'administration
+3. Pour les choix d'image, les fichiers sont automatiquement téléversés sur Imgur
+4. Les utilisateurs peuvent remplir le formulaire à l'adresse principale `/`
+5. Les réponses sont stockées dans localStorage et peuvent être exportées depuis l’administration
 
 ## Installation et démarrage
 
@@ -36,14 +41,3 @@ npm install
 
 # Démarrer l'application
 npm run dev
-```
-
-## Stockage des données
-
-Pour faciliter le développement et le déploiement, cette application utilise le localStorage du navigateur pour la persistance des données. En production, vous pouvez adapter le code pour utiliser des fichiers JSON/TXT réels si nécessaire.
-
-## Limitations
-
-- Les données sont stockées dans le navigateur (localStorage) de l'utilisateur
-- Les images doivent être hébergées en ligne (via URL)
-- Pas de système d'authentification
