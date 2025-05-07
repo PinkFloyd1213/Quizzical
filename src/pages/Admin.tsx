@@ -13,6 +13,7 @@ import { useAdminAuth } from "../hooks/useAdminAuth";
 import { useQuestionsData } from "../hooks/useQuestionsData";
 import { useFormSettings } from "../hooks/useFormSettings";
 import { useDataReset } from "../hooks/useDataReset";
+import QuestionDataManager from "../components/admin/QuestionDataManager";
 import { saveQuestions, downloadQuestionsAsJsonFile, downloadQuestionTemplateAsJsonFile } from "../utils/fileUtils";
 
 const Admin: React.FC = () => {
@@ -82,6 +83,24 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleImportQuestions = async (questions: any[]) => {
+    try {
+      await saveQuestions(questions);
+      await fetchQuestions(); // Refresh the questions list
+      toast({
+        title: "Import réussi",
+        description: `${questions.length} question(s) importée(s) avec succès`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour après import:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les questions après import",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleExportQuestions = () => {
     downloadQuestionsAsJsonFile();
     toast({
@@ -98,22 +117,9 @@ const Admin: React.FC = () => {
     });
   };
 
-  const handleImportQuestions = async (importedQuestions: any[]) => {
-    try {
-      await saveQuestions(importedQuestions);
-      await fetchQuestions(); // Refresh the questions list
-      toast({
-        title: "Import réussi",
-        description: `${importedQuestions.length} question(s) importée(s) avec succès`,
-      });
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour après import:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour les questions après import",
-        variant: "destructive",
-      });
-    }
+  // File input change handler wrapper to bridge the type mismatch
+  const handleImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // We'll pass this event handler to QuestionsTab instead of the direct handleImportQuestions function
   };
 
   if (!isAuthenticated) {
@@ -138,14 +144,41 @@ const Admin: React.FC = () => {
       </div>
 
       {activeTab === "questions" && (
-        <QuestionsTab 
-          questions={questions}
-          onUpdateQuestions={handleUpdateQuestions}
-          onImportQuestions={handleImportQuestions}
-          onExportQuestions={handleExportQuestions}
-          onDownloadTemplate={handleDownloadTemplate}
-          loading={loading}
-        />
+        <>
+          <QuestionDataManager onImportQuestions={handleImportQuestions} />
+          <QuestionsTab 
+            questions={questions}
+            onUpdateQuestions={handleUpdateQuestions}
+            onImportQuestions={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              
+              // This bridges the file input change event to our QuestionDataManager
+              const dataManager = document.createElement('input');
+              dataManager.type = 'file';
+              
+              // Create a new event and dispatch it
+              const newEvent = new Event('change', { bubbles: true });
+              Object.defineProperty(newEvent, 'target', {
+                writable: false,
+                value: { files: [file] }
+              });
+              
+              // Find the QuestionDataManager input and trigger its change event
+              const actualInput = document.querySelector('input[type="file"]');
+              if (actualInput) {
+                actualInput.files = e.target.files;
+                actualInput.dispatchEvent(newEvent);
+              }
+              
+              // Reset the input value
+              e.target.value = "";
+            }}
+            onExportQuestions={handleExportQuestions}
+            onDownloadTemplate={handleDownloadTemplate}
+            loading={loading}
+          />
+        </>
       )}
 
       {activeTab === "responses" && <ResponseViewer />}

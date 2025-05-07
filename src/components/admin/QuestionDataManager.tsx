@@ -15,23 +15,7 @@ interface QuestionDataManagerProps {
 const QuestionDataManager: React.FC<QuestionDataManagerProps> = ({ onImportQuestions }) => {
   const { toast } = useToast();
 
-  const handleExportQuestions = () => {
-    downloadQuestionsAsJsonFile();
-    toast({
-      title: "Export réussi",
-      description: "Les questions ont été exportées au format JSON",
-    });
-  };
-
-  const handleDownloadTemplate = () => {
-    downloadQuestionTemplateAsJsonFile();
-    toast({
-      title: "Téléchargement réussi",
-      description: "Le template de questions a été téléchargé",
-    });
-  };
-
-  const handleImportQuestions = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -52,8 +36,14 @@ const QuestionDataManager: React.FC<QuestionDataManagerProps> = ({ onImportQuest
   };
 
   return (
-    <div>
-      {/* This component is used for its hooks but UI is rendered in QuestionsTab */}
+    <div className="hidden">
+      {/* Hidden input that will be triggered programmatically */}
+      <input
+        type="file"
+        accept=".json"
+        onChange={handleFileChange}
+        id="hidden-file-input"
+      />
     </div>
   );
 };
