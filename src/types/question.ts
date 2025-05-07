@@ -46,4 +46,9 @@ export interface FormResponse {
   questionText: string;
   answer: string | string[] | null;
   timestamp: string;
+  respondentName?: string;
+}
+
+export interface FormSettings {
+  collectRespondentInfo: boolean;
 }

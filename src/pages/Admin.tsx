@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
-import { Question } from "../types/question";
+import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
+import FormSettings from "../components/admin/FormSettings";
 import { 
   loadQuestions, 
   saveQuestions, 
@@ -11,7 +11,9 @@ import {
   importQuestionsFromJsonFile, 
   clearResponses, 
   saveAdminPassword,
-  getAdminPassword
+  getAdminPassword,
+  loadFormSettings,
+  saveFormSettings
 } from "../utils/fileUtils";
 import { useToast } from "../components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
@@ -21,25 +23,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 const Admin: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<"questions" | "responses">("questions");
+  const [activeTab, setActiveTab] = useState<"questions" | "responses" | "settings">("questions");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [formSettings, setFormSettings] = useState<FormSettings>({
+    collectRespondentInfo: false
+  });
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         const loadedQuestions = await loadQuestions();
         setQuestions(loadedQuestions);
+        
+        const settings = await loadFormSettings();
+        setFormSettings(settings);
       } catch (error) {
-        console.error("Erreur lors du chargement des questions:", error);
+        console.error("Erreur lors du chargement des données:", error);
         toast({
           title: "Erreur",
-          description: "Impossible de charger les questions",
+          description: "Impossible de charger les données",
           variant: "destructive",
         });
       } finally {
@@ -47,8 +55,26 @@ const Admin: React.FC = () => {
       }
     };
 
-    fetchQuestions();
+    fetchData();
   }, [toast]);
+
+  const handleUpdateFormSettings = async (updatedSettings: FormSettings) => {
+    try {
+      await saveFormSettings(updatedSettings);
+      setFormSettings(updatedSettings);
+      toast({
+        title: "Succès",
+        description: "Paramètres mis à jour avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour des paramètres:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les paramètres",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleUpdateQuestions = async (updatedQuestions: Question[]) => {
     try {
@@ -232,6 +258,16 @@ const Admin: React.FC = () => {
             >
               Réponses
             </button>
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === "settings"
+                  ? "bg-violet-600 text-white"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+              }`}
+            >
+              Paramètres
+            </button>
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -322,6 +358,13 @@ const Admin: React.FC = () => {
       )}
 
       {activeTab === "responses" && <ResponseViewer />}
+      
+      {activeTab === "settings" && (
+        <FormSettings 
+          settings={formSettings}
+          onUpdateSettings={handleUpdateFormSettings}
+        />
+      )}
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
