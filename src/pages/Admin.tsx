@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
@@ -82,7 +81,7 @@ const Admin: React.FC = () => {
       });
     }
   };
-
+  
   const handleImportQuestions = async (questions: any[]) => {
     try {
       await saveQuestions(questions);
@@ -117,11 +116,6 @@ const Admin: React.FC = () => {
     });
   };
 
-  // File input change handler wrapper to bridge the type mismatch
-  const handleImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // We'll pass this event handler to QuestionsTab instead of the direct handleImportQuestions function
-  };
-
   if (!isAuthenticated) {
     return (
       <AdminLogin 
@@ -154,21 +148,11 @@ const Admin: React.FC = () => {
               if (!file) return;
               
               // This bridges the file input change event to our QuestionDataManager
-              const dataManager = document.createElement('input');
-              dataManager.type = 'file';
-              
-              // Create a new event and dispatch it
-              const newEvent = new Event('change', { bubbles: true });
-              Object.defineProperty(newEvent, 'target', {
-                writable: false,
-                value: { files: [file] }
-              });
-              
-              // Find the QuestionDataManager input and trigger its change event
-              const actualInput = document.querySelector('input[type="file"]');
-              if (actualInput) {
-                actualInput.files = e.target.files;
-                actualInput.dispatchEvent(newEvent);
+              const hiddenInput = document.querySelector('#hidden-file-input') as HTMLInputElement;
+              if (hiddenInput) {
+                hiddenInput.files = e.target.files;
+                const event = new Event('change', { bubbles: true });
+                hiddenInput.dispatchEvent(event);
               }
               
               // Reset the input value
