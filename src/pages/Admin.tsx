@@ -1,9 +1,13 @@
+
 import React, { useState, useEffect } from "react";
-import { Question } from "../types/question";
+import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
 import FormSettingsComponent from "../components/admin/FormSettings";
-import { FormSettings } from "../types/question";
+import AdminLogin from "../components/admin/AdminLogin";
+import AdminHeader from "../components/admin/AdminHeader";
+import QuestionsTab from "../components/admin/QuestionsTab";
+import PasswordChangeDialog from "../components/admin/PasswordChangeDialog";
 import { 
   loadQuestions, 
   saveQuestions, 
@@ -16,20 +20,14 @@ import {
   loadFormSettings,
   saveFormSettings
 } from "../utils/fileUtils";
-import { useToast } from "../components/ui/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
-import { Button } from "../components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
+import { useToast } from "../hooks/use-toast";
 
 const Admin: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<"questions" | "responses" | "settings">("questions");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>("");
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState<boolean>(false);
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [formSettings, setFormSettings] = useState<FormSettings>({
     collectRespondentInfo: false
   });
@@ -136,9 +134,7 @@ const Admin: React.FC = () => {
     e.target.value = "";
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleLogin = (password: string) => {
     const currentPassword = getAdminPassword();
     
     if (password === currentPassword) {
@@ -156,47 +152,9 @@ const Admin: React.FC = () => {
     }
   };
 
-  const handleClearAllQuestions = async () => {
-    try {
-      await saveQuestions([]);
-      setQuestions([]);
-      toast({
-        title: "Succès",
-        description: "Toutes les questions ont été supprimées",
-      });
-    } catch (error) {
-      console.error("Erreur lors de la suppression des questions:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer les questions",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleChangePassword = () => {
-    if (!newPassword) {
-      toast({
-        title: "Erreur",
-        description: "Le nouveau mot de passe ne peut pas être vide",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas",
-        variant: "destructive",
-      });
-      return;
-    }
-    
+  const handleChangePassword = (newPassword: string) => {
     saveAdminPassword(newPassword);
     setIsPasswordDialogOpen(false);
-    setNewPassword("");
-    setConfirmPassword("");
     
     toast({
       title: "Succès",
@@ -206,156 +164,31 @@ const Admin: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto p-6 mt-20 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Administration</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
-          >
-            Se connecter
-          </button>
-        </form>
-      </div>
+      <AdminLogin 
+        onLogin={(success) => {
+          if (success) setIsAuthenticated(true);
+        }} 
+      />
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Administration du formulaire</h1>
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <button
-              onClick={() => setActiveTab("questions")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === "questions"
-                  ? "bg-violet-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-              }`}
-            >
-              Questions
-            </button>
-            <button
-              onClick={() => setActiveTab("responses")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === "responses"
-                  ? "bg-violet-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-              }`}
-            >
-              Réponses
-            </button>
-            <button
-              onClick={() => setActiveTab("settings")}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                activeTab === "settings"
-                  ? "bg-violet-600 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-              }`}
-            >
-              Paramètres
-            </button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setIsPasswordDialogOpen(true)}
-              className="text-violet-600 hover:underline"
-            >
-              Changer le mot de passe
-            </button>
-            <a
-              href="/"
-              className="text-violet-600 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Voir le formulaire
-            </a>
-          </div>
-        </div>
-      </header>
+      <AdminHeader 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
+      />
 
       {activeTab === "questions" && (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <div className="flex space-x-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
-                    Supprimer toutes les questions
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Êtes-vous absolument sûr?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Cette action est irréversible. Elle supprimera définitivement toutes vos questions et ne peut pas être annulée.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleClearAllQuestions} className="bg-red-600 hover:bg-red-700">
-                      Supprimer
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-            
-            <div className="flex space-x-2 flex-wrap gap-2">
-              <button
-                onClick={handleDownloadTemplate}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Télécharger template
-              </button>
-              
-              <label className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg cursor-pointer transition-colors">
-                Importer (JSON)
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleImportQuestions}
-                />
-              </label>
-              
-              <button
-                onClick={handleExportQuestions}
-                disabled={questions.length === 0}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  questions.length === 0
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                }`}
-              >
-                Exporter (JSON)
-              </button>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
-            </div>
-          ) : (
-            <QuestionList questions={questions} onUpdate={handleUpdateQuestions} />
-          )}
-        </div>
+        <QuestionsTab 
+          questions={questions}
+          onUpdateQuestions={handleUpdateQuestions}
+          onImportQuestions={handleImportQuestions}
+          onExportQuestions={handleExportQuestions}
+          onDownloadTemplate={handleDownloadTemplate}
+          loading={loading}
+        />
       )}
 
       {activeTab === "responses" && <ResponseViewer />}
@@ -367,48 +200,11 @@ const Admin: React.FC = () => {
         />
       )}
 
-      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Changer le mot de passe administrateur</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label htmlFor="new-password" className="block text-sm font-medium">
-                Nouveau mot de passe
-              </label>
-              <input
-                type="password"
-                id="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="confirm-password" className="block text-sm font-medium">
-                Confirmer le mot de passe
-              </label>
-              <input
-                type="password"
-                id="confirm-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
-              Annuler
-            </Button>
-            <Button onClick={handleChangePassword}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PasswordChangeDialog 
+        isOpen={isPasswordDialogOpen}
+        onOpenChange={setIsPasswordDialogOpen}
+        onChangePassword={handleChangePassword}
+      />
     </div>
   );
 };

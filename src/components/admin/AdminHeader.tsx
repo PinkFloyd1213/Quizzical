@@ -1,0 +1,72 @@
+
+import React from "react";
+
+interface AdminHeaderProps {
+  activeTab: "questions" | "responses" | "settings";
+  setActiveTab: (tab: "questions" | "responses" | "settings") => void;
+  onOpenPasswordDialog: () => void;
+}
+
+const AdminHeader: React.FC<AdminHeaderProps> = ({ 
+  activeTab, 
+  setActiveTab,
+  onOpenPasswordDialog 
+}) => {
+  return (
+    <header className="mb-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">Administration du formulaire</h1>
+      <div className="flex justify-between items-center">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setActiveTab("questions")}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeTab === "questions"
+                ? "bg-violet-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+            }`}
+          >
+            Questions
+          </button>
+          <button
+            onClick={() => setActiveTab("responses")}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeTab === "responses"
+                ? "bg-violet-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+            }`}
+          >
+            Réponses
+          </button>
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              activeTab === "settings"
+                ? "bg-violet-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+            }`}
+          >
+            Paramètres
+          </button>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={onOpenPasswordDialog}
+            className="text-violet-600 hover:underline"
+          >
+            Changer le mot de passe
+          </button>
+          <a
+            href="/"
+            className="text-violet-600 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Voir le formulaire
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default AdminHeader;
