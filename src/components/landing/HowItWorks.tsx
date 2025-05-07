@@ -9,7 +9,7 @@ const HowItWorks: React.FC = () => {
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Comment ça fonctionne ?</h2>
         <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-          Quizzical est une application qui fonctionne entièrement côté client, sans serveur ni base de données.
+          Quizicall est une application qui fonctionne entièrement côté client, sans serveur ni base de données.
         </p>
       </div>
       

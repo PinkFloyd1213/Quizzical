@@ -9,7 +9,7 @@ const QuestionTypes: React.FC = () => {
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Types de questions supportés</h2>
         <p className="text-gray-600 max-w-3xl mx-auto text-lg">
-          Quizzical propose différents formats de questions pour s'adapter à vos besoins.
+          Quizicall propose différents formats de questions pour s'adapter à vos besoins.
         </p>
       </div>
 

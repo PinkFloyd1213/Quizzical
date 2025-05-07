@@ -1,4 +1,4 @@
-# Formulaire de Questions - Quizzical
+# Formulaire de Questions - Quizicall
 
 Un système léger et simple de création de formulaires et de collecte de réponses, fonctionnant entièrement en local, sans base de données et sans système de login.
 

@@ -17,7 +17,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
       <div className="flex items-center mb-4">
         <img 
           src="/lovable-uploads/1bbf8a9a-7b07-4e8b-b91c-346c8356ade6.png" 
-          alt="Logo Quizzical" 
+          alt="Logo Quizicall" 
           className="h-12 mr-3"
         />
         <h1 className="text-3xl font-bold text-gray-800">Administration du formulaire</h1>
