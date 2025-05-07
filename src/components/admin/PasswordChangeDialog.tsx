@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useToast } from "../../hooks/use-toast";
 
@@ -8,12 +8,14 @@ interface PasswordChangeDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onChangePassword: (password: string) => void;
+  isFirstLogin?: boolean;
 }
 
 const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
   isOpen,
   onOpenChange,
-  onChangePassword
+  onChangePassword,
+  isFirstLogin = false
 }) => {
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -44,21 +46,38 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={isFirstLogin => {
-      // Si c'est la première connexion, empêcher la fermeture du dialogue
-      if (isFirstLogin) {
-        return;
-      }
-      onOpenChange(isFirstLogin);
-    }}>
-      <DialogContent className="z-50" onPointerDownOutside={e => {
-        // Empêcher la fermeture lors du clic à l'extérieur pour la première connexion
-        if (isOpen) {
-          e.preventDefault();
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        // Si c'est la première connexion, empêcher la fermeture du dialogue
+        if (isFirstLogin && !open) {
+          return;
         }
-      }}>
+        onOpenChange(open);
+      }}
+    >
+      <DialogContent 
+        className="z-50" 
+        onPointerDownOutside={e => {
+          // Empêcher la fermeture lors du clic à l'extérieur pour la première connexion
+          if (isFirstLogin) {
+            e.preventDefault();
+          }
+        }}
+        onEscapeKeyDown={e => {
+          // Empêcher la fermeture avec la touche Escape pour la première connexion
+          if (isFirstLogin) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Changer le mot de passe administrateur</DialogTitle>
+          {isFirstLogin && (
+            <DialogDescription>
+              Pour des raisons de sécurité, vous devez changer le mot de passe par défaut lors de votre première connexion.
+            </DialogDescription>
+          )}
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -90,9 +109,11 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
+          {!isFirstLogin && (
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Annuler
+            </Button>
+          )}
           <Button onClick={handleChangePassword}>Enregistrer</Button>
         </DialogFooter>
       </DialogContent>

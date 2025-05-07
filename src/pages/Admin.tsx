@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
@@ -246,15 +245,12 @@ const Admin: React.FC = () => {
         />
       )}
 
-      {/* Rendre la boîte de dialogue modale et non fermable lors de la première connexion */}
+      {/* Dialogue de changement de mot de passe */}
       <PasswordChangeDialog 
         isOpen={isPasswordDialogOpen}
-        onOpenChange={(open) => {
-          if (!isFirstLogin || !open) {
-            setIsPasswordDialogOpen(open);
-          }
-        }}
+        onOpenChange={setIsPasswordDialogOpen}
         onChangePassword={handleChangePassword}
+        isFirstLogin={isFirstLogin}
       />
     </div>
   );
