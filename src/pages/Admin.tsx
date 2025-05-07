@@ -3,12 +3,20 @@ import React, { useState, useEffect } from "react";
 import { Question } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
 import ResponseViewer from "../components/admin/ResponseViewer";
-import { loadQuestions, saveQuestions, downloadQuestionsAsJsonFile, importQuestionsFromJsonFile, clearResponses } from "../utils/fileUtils";
+import { 
+  loadQuestions, 
+  saveQuestions, 
+  downloadQuestionsAsJsonFile, 
+  downloadQuestionTemplateAsJsonFile,
+  importQuestionsFromJsonFile, 
+  clearResponses, 
+  saveAdminPassword,
+  getAdminPassword
+} from "../utils/fileUtils";
 import { useToast } from "../components/ui/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../components/ui/alert-dialog";
 import { Button } from "../components/ui/button";
-
-const ADMIN_PASSWORD = "12131213It";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
 
 const Admin: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -16,6 +24,9 @@ const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"questions" | "responses">("questions");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState<boolean>(false);
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -65,6 +76,14 @@ const Admin: React.FC = () => {
     });
   };
 
+  const handleDownloadTemplate = () => {
+    downloadQuestionTemplateAsJsonFile();
+    toast({
+      title: "Téléchargement réussi",
+      description: "Le template de questions a été téléchargé",
+    });
+  };
+
   const handleImportQuestions = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -93,7 +112,9 @@ const Admin: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password === ADMIN_PASSWORD) {
+    const currentPassword = getAdminPassword();
+    
+    if (password === currentPassword) {
       setIsAuthenticated(true);
       toast({
         title: "Connexion réussie",
@@ -124,6 +145,36 @@ const Admin: React.FC = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleChangePassword = () => {
+    if (!newPassword) {
+      toast({
+        title: "Erreur",
+        description: "Le nouveau mot de passe ne peut pas être vide",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    saveAdminPassword(newPassword);
+    setIsPasswordDialogOpen(false);
+    setNewPassword("");
+    setConfirmPassword("");
+    
+    toast({
+      title: "Succès",
+      description: "Le mot de passe administrateur a été modifié",
+    });
   };
 
   if (!isAuthenticated) {
@@ -183,6 +234,12 @@ const Admin: React.FC = () => {
             </button>
           </div>
           <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsPasswordDialogOpen(true)}
+              className="text-violet-600 hover:underline"
+            >
+              Changer le mot de passe
+            </button>
             <a
               href="/"
               className="text-violet-600 hover:underline"
@@ -197,30 +254,39 @@ const Admin: React.FC = () => {
 
       {activeTab === "questions" && (
         <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
-                  Supprimer toutes les questions
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Êtes-vous absolument sûr?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Cette action est irréversible. Elle supprimera définitivement toutes vos questions et ne peut pas être annulée.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleClearAllQuestions} className="bg-red-600 hover:bg-red-700">
-                    Supprimer
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <div className="flex space-x-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                    Supprimer toutes les questions
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Êtes-vous absolument sûr?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action est irréversible. Elle supprimera définitivement toutes vos questions et ne peut pas être annulée.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearAllQuestions} className="bg-red-600 hover:bg-red-700">
+                      Supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
             
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 flex-wrap gap-2">
+              <button
+                onClick={handleDownloadTemplate}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Télécharger template
+              </button>
+              
               <label className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg cursor-pointer transition-colors">
                 Importer (JSON)
                 <input
@@ -230,6 +296,7 @@ const Admin: React.FC = () => {
                   onChange={handleImportQuestions}
                 />
               </label>
+              
               <button
                 onClick={handleExportQuestions}
                 disabled={questions.length === 0}
@@ -255,6 +322,49 @@ const Admin: React.FC = () => {
       )}
 
       {activeTab === "responses" && <ResponseViewer />}
+
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Changer le mot de passe administrateur</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="new-password" className="block text-sm font-medium">
+                Nouveau mot de passe
+              </label>
+              <input
+                type="password"
+                id="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="confirm-password" className="block text-sm font-medium">
+                Confirmer le mot de passe
+              </label>
+              <input
+                type="password"
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleChangePassword}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
