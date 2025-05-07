@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
@@ -217,7 +218,6 @@ const Admin: React.FC = () => {
       <AdminHeader 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
       />
 
       {/* Bouton de réinitialisation complète */}
@@ -242,6 +242,7 @@ const Admin: React.FC = () => {
         <FormSettingsComponent 
           settings={formSettings}
           onUpdateSettings={handleUpdateFormSettings}
+          onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
         />
       )}
 

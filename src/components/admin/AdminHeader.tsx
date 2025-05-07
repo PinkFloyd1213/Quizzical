@@ -6,13 +6,11 @@ import { Home } from "lucide-react";
 interface AdminHeaderProps {
   activeTab: "questions" | "responses" | "settings";
   setActiveTab: (tab: "questions" | "responses" | "settings") => void;
-  onOpenPasswordDialog: () => void;
 }
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({ 
   activeTab, 
-  setActiveTab,
-  onOpenPasswordDialog 
+  setActiveTab
 }) => {
   return (
     <header className="mb-8">
@@ -58,12 +56,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
           </button>
         </div>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={onOpenPasswordDialog}
-            className="text-violet-600 hover:underline"
-          >
-            Changer le mot de passe
-          </button>
           <Link
             to="/form"
             className="text-violet-600 hover:underline flex items-center gap-1"
