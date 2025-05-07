@@ -57,7 +57,8 @@ const PasswordChangeDialog: React.FC<PasswordChangeDialogProps> = ({
       }}
     >
       <DialogContent 
-        className="z-50" 
+        // Augmenter le z-index pour qu'il soit supérieur au toast (qui est à 100)
+        className="z-[110]" 
         onPointerDownOutside={e => {
           // Empêcher la fermeture lors du clic à l'extérieur pour la première connexion
           if (isFirstLogin) {

@@ -147,10 +147,15 @@ const Admin: React.FC = () => {
     
     if (password === currentPassword) {
       setIsAuthenticated(true);
-      toast({
-        title: "Connexion réussie",
-        description: "Vous êtes maintenant connecté à l'interface d'administration",
-      });
+      
+      // Ne pas afficher le toast de connexion réussie si c'est la première connexion
+      // Cela évitera d'avoir deux éléments UI superposés et de griser l'interface
+      if (!isFirstLogin) {
+        toast({
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté à l'interface d'administration",
+        });
+      }
       
       // Si c'est la première connexion, ouvrir la boîte de dialogue de changement de mot de passe
       if (isFirstLogin) {
@@ -174,6 +179,16 @@ const Admin: React.FC = () => {
       title: "Succès",
       description: "Le mot de passe administrateur a été modifié",
     });
+    
+    // Afficher un toast de bienvenue après avoir changé le mot de passe lors de la première connexion
+    if (isFirstLogin) {
+      setTimeout(() => {
+        toast({
+          title: "Bienvenue",
+          description: "Vous êtes maintenant connecté à l'interface d'administration",
+        });
+      }, 500); // Un petit délai pour laisser le temps au toast précédent de s'afficher correctement
+    }
   };
 
   const handleResetAllData = async () => {
