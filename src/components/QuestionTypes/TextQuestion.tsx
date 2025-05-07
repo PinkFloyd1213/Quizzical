@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Question } from "../../types/question";
 
 interface TextQuestionProps {
@@ -10,6 +10,11 @@ interface TextQuestionProps {
 
 const TextQuestion: React.FC<TextQuestionProps> = ({ question, onAnswer, currentAnswer }) => {
   const [answer, setAnswer] = useState<string>(currentAnswer || "");
+  
+  // Update local state when currentAnswer changes (e.g. when cleared between questions)
+  useEffect(() => {
+    setAnswer(currentAnswer || "");
+  }, [currentAnswer]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

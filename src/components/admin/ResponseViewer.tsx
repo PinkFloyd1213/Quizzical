@@ -14,6 +14,7 @@ interface ParsedResponse {
     questionId: string;
     questionText: string;
     answer: string | string[] | null;
+    questionType?: string; // Add question type to help identify image responses
   }[];
   timestamp: string;
 }
@@ -60,10 +61,17 @@ const ResponseViewer: React.FC = () => {
                 currentResponse.timestamp = line.replace("Date:", "").trim();
               } else if (line.includes(":")) {
                 const [questionText, answerText] = line.split(":");
+                const trimmedQuestionText = questionText.trim();
+                const trimmedAnswerText = answerText.trim();
+                
+                // Detect if it's an image question by checking for image alt text pattern
+                const isImageQuestion = trimmedAnswerText.includes("(image: ");
+                
                 currentResponse.answers.push({
-                  questionId: questionText.trim(),
-                  questionText: questionText.trim(),
-                  answer: answerText.trim()
+                  questionId: trimmedQuestionText,
+                  questionText: trimmedQuestionText,
+                  answer: trimmedAnswerText,
+                  questionType: isImageQuestion ? "image-choice" : "text"
                 });
               }
             });
@@ -123,6 +131,41 @@ const ResponseViewer: React.FC = () => {
   // Check if we have any responses
   const hasResponses = parsedResponses.length > 0;
   const selectedResponse = selectedRespondent ? groupedResponses[selectedRespondent] : null;
+
+  // Helper function to render answer content based on question type
+  const renderAnswerContent = (answer: string | string[] | null, questionType?: string) => {
+    if (!answer) {
+      return <span className="text-gray-400 italic">Aucune réponse</span>;
+    }
+    
+    // Handle image answers - extract URL from the string
+    if (questionType === "image-choice" && typeof answer === "string") {
+      // Extract image URL if available
+      const imageUrlMatch = answer.match(/\(url: ([^)]+)\)/);
+      const imageUrl = imageUrlMatch ? imageUrlMatch[1] : null;
+      
+      if (imageUrl) {
+        return (
+          <div className="flex flex-col gap-2">
+            <img 
+              src={imageUrl} 
+              alt="Réponse image" 
+              className="max-w-[150px] max-h-[150px] object-contain border border-gray-200 rounded-md" 
+            />
+            <span className="text-sm text-gray-500">{answer.split("(url:")[0].trim()}</span>
+          </div>
+        );
+      }
+    }
+    
+    // For array answers
+    if (Array.isArray(answer)) {
+      return answer.join(", ");
+    }
+    
+    // For regular text answers
+    return answer;
+  };
 
   return (
     <div className="space-y-6">
@@ -220,10 +263,7 @@ const ResponseViewer: React.FC = () => {
                     <TableRow key={index}>
                       <TableCell className="font-medium">{answer.questionText}</TableCell>
                       <TableCell>
-                        {Array.isArray(answer.answer) 
-                          ? answer.answer.join(", ") 
-                          : answer.answer || <span className="text-gray-400 italic">Aucune réponse</span>
-                        }
+                        {renderAnswerContent(answer.answer, answer.questionType)}
                       </TableCell>
                     </TableRow>
                   ))}

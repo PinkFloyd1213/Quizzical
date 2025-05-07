@@ -15,10 +15,12 @@ const ImageChoiceQuestion: React.FC<ImageChoiceQuestionProps> = ({
   currentAnswer,
 }) => {
   const isMultiple = question.multipleSelection || false;
+  
+  // Handle both string and array formats for currentAnswer
   const initialValue = currentAnswer
     ? Array.isArray(currentAnswer)
-      ? currentAnswer
-      : [currentAnswer]
+      ? currentAnswer.map(a => typeof a === "string" && a.includes("(url:") ? a.split("(url:")[0].trim() : a)
+      : [typeof currentAnswer === "string" && currentAnswer.includes("(url:") ? currentAnswer.split("(url:")[0].trim() : currentAnswer]
     : [];
 
   const [selectedImages, setSelectedImages] = useState<string[]>(initialValue);

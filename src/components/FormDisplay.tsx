@@ -92,6 +92,16 @@ const FormDisplay: React.FC = () => {
     
     if (currentQuestionIndex < shuffledQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+      
+      // Clear text fields between consecutive text questions
+      const nextQuestion = shuffledQuestions[currentQuestionIndex + 1];
+      if (nextQuestion.type === "text" && responses[nextQuestion.id]) {
+        // Clear the response for the next text question if it exists
+        setResponses(prev => ({
+          ...prev,
+          [nextQuestion.id]: null
+        }));
+      }
     } else {
       handleSubmit();
     }
@@ -114,10 +124,27 @@ const FormDisplay: React.FC = () => {
     const formattedResponses: FormResponse[] = Object.entries(responses).map(
       ([questionId, answer]) => {
         const question = questions.find((q) => q.id === questionId);
+        
+        // For image-choice questions, prepare the answer for raw text export by including the alt text
+        let formattedAnswer = answer;
+        if (question?.type === "image-choice" && answer) {
+          const imageChoice = question.imageChoices?.find(img => img.id === answer || (Array.isArray(answer) && answer.includes(img.id)));
+          if (imageChoice) {
+            if (typeof answer === "string") {
+              formattedAnswer = `${imageChoice.alt} (image: ${imageChoice.alt}) (url: ${imageChoice.url})`;
+            } else if (Array.isArray(answer)) {
+              formattedAnswer = answer.map(id => {
+                const img = question.imageChoices?.find(i => i.id === id);
+                return img ? `${img.alt} (image: ${img.alt}) (url: ${img.url})` : id;
+              });
+            }
+          }
+        }
+        
         return {
           questionId,
           questionText: question?.text || "Question inconnue",
-          answer,
+          answer: formattedAnswer,
           timestamp: new Date().toISOString(),
           respondentName: formSettings.collectRespondentInfo ? respondentName : undefined
         };
