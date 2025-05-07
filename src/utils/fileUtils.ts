@@ -1,4 +1,3 @@
-
 import { Question, FormResponse, FormSettings } from "../types/question";
 
 export const loadQuestions = async (): Promise<Question[]> => {
@@ -184,4 +183,19 @@ export const downloadResponsesAsTextFile = (): void => {
     linkElement.click();
     document.body.removeChild(linkElement);
   });
+};
+
+export const resetAllLocalData = async (): Promise<void> => {
+  try {
+    // Supprimer toutes les données stockées localement
+    localStorage.removeItem('questions');
+    localStorage.removeItem('formResponses');
+    localStorage.removeItem('formSettings');
+    
+    // Réinitialiser le mot de passe admin au mot de passe par défaut
+    saveAdminPassword('12345');
+  } catch (error) {
+    console.error('Error resetting local data:', error);
+    throw error;
+  }
 };

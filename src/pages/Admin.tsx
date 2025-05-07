@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Question, FormSettings } from "../types/question";
 import QuestionList from "../components/admin/QuestionList";
@@ -8,6 +7,7 @@ import AdminLogin from "../components/admin/AdminLogin";
 import AdminHeader from "../components/admin/AdminHeader";
 import QuestionsTab from "../components/admin/QuestionsTab";
 import PasswordChangeDialog from "../components/admin/PasswordChangeDialog";
+import ResetDataDialog from "../components/admin/ResetDataDialog";
 import { 
   loadQuestions, 
   saveQuestions, 
@@ -18,7 +18,8 @@ import {
   saveAdminPassword,
   getAdminPassword,
   loadFormSettings,
-  saveFormSettings
+  saveFormSettings,
+  resetAllLocalData
 } from "../utils/fileUtils";
 import { useToast } from "../hooks/use-toast";
 
@@ -175,6 +176,32 @@ const Admin: React.FC = () => {
     });
   };
 
+  const handleResetAllData = async () => {
+    try {
+      await resetAllLocalData();
+      // Recharger les données après réinitialisation
+      const loadedQuestions = await loadQuestions();
+      setQuestions(loadedQuestions);
+      
+      const settings = await loadFormSettings();
+      setFormSettings(settings);
+      
+      setActiveTab("questions");
+      
+      toast({
+        title: "Réinitialisation réussie",
+        description: "Toutes les données ont été supprimées et réinitialisées",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la réinitialisation des données:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de réinitialiser les données",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <AdminLogin 
@@ -192,6 +219,11 @@ const Admin: React.FC = () => {
         setActiveTab={setActiveTab} 
         onOpenPasswordDialog={() => setIsPasswordDialogOpen(true)}
       />
+
+      {/* Bouton de réinitialisation complète */}
+      <div className="mb-6 flex justify-end">
+        <ResetDataDialog onResetData={handleResetAllData} />
+      </div>
 
       {activeTab === "questions" && (
         <QuestionsTab 
