@@ -42,6 +42,13 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
       <label className="block text-lg font-medium">
         {question.text} {question.required && <span className="text-red-500">*</span>}
       </label>
+      
+      {isMultiple && (
+        <p className="text-sm text-gray-600 italic">
+          Vous pouvez sélectionner plusieurs options
+        </p>
+      )}
+      
       <div className="space-y-2">
         {question.choices?.map((choice) => (
           <div
@@ -54,7 +61,7 @@ const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
             }`}
           >
             <div
-              className={`w-6 h-6 flex items-center justify-center rounded-md border ${
+              className={`w-6 h-6 flex items-center justify-center rounded-${isMultiple ? "md" : "full"} border ${
                 selectedOptions.includes(choice.value)
                   ? "bg-violet-600 border-violet-600"
                   : "border-gray-300"

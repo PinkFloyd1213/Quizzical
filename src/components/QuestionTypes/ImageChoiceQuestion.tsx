@@ -42,6 +42,13 @@ const ImageChoiceQuestion: React.FC<ImageChoiceQuestionProps> = ({
       <label className="block text-lg font-medium">
         {question.text} {question.required && <span className="text-red-500">*</span>}
       </label>
+      
+      {isMultiple && (
+        <p className="text-sm text-gray-600 italic">
+          Vous pouvez sélectionner plusieurs images
+        </p>
+      )}
+      
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {question.imageChoices?.map((image) => (
           <div
