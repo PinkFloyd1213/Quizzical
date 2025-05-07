@@ -14,7 +14,14 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
 }) => {
   return (
     <header className="mb-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Administration du formulaire</h1>
+      <div className="flex items-center mb-4">
+        <img 
+          src="/lovable-uploads/1bbf8a9a-7b07-4e8b-b91c-346c8356ade6.png" 
+          alt="Logo Quizzical" 
+          className="h-12 mr-3"
+        />
+        <h1 className="text-3xl font-bold text-gray-800">Administration du formulaire</h1>
+      </div>
       <div className="flex justify-between items-center">
         <div className="flex space-x-4">
           <button
