@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Settings, CheckSquare, Image, List, Radio, HardDrive, DatabaseOff, ShieldCheck } from "lucide-react";
+import { ClipboardList, Settings, CheckSquare, Image, List, Radio, HardDrive, Database, ShieldCheck } from "lucide-react";
 
 const Index: React.FC = () => {
   return (
@@ -55,7 +54,7 @@ const Index: React.FC = () => {
               <Card className="border-violet-100 shadow-xl hover:shadow-2xl transition-shadow bg-white">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-3 text-violet-700">
-                    <DatabaseOff className="h-6 w-6" />
+                    <Database className="h-6 w-6" />
                     Sans serveur
                   </CardTitle>
                 </CardHeader>
