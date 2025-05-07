@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Form, Settings, CheckSquare, Image, List, Radio } from "lucide-react";
+import { ClipboardList, Settings, CheckSquare, Image, List, Radio } from "lucide-react";
 
 const Index: React.FC = () => {
   return (
@@ -39,7 +38,7 @@ const Index: React.FC = () => {
               <Card className="border-violet-100 shadow-md hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-violet-700">
-                    <Form className="h-5 w-5" />
+                    <ClipboardList className="h-5 w-5" />
                     Créez votre formulaire
                   </CardTitle>
                 </CardHeader>
@@ -184,7 +183,7 @@ const Index: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/form">
                 <Button size="lg" className="bg-violet-600 hover:bg-violet-700">
-                  <Form className="mr-2 h-4 w-4" />
+                  <ClipboardList className="mr-2 h-4 w-4" />
                   Accéder au formulaire
                 </Button>
               </Link>
