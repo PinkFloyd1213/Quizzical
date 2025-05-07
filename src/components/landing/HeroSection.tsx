@@ -9,11 +9,10 @@ const HeroSection: React.FC = () => {
     <header className="mb-16 text-center">
       <div className="flex items-center justify-center mb-6">
         <img 
-          src="/lovable-uploads/1bbf8a9a-7b07-4e8b-b91c-346c8356ade6.png" 
+          src="/lovable-uploads/7bc3deed-7736-467c-b3e6-c4701bc2f6fa.png" 
           alt="Logo Quizzical" 
           className="h-24 mr-4"
         />
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-700 to-purple-500 text-transparent bg-clip-text">Quizzical</h1>
       </div>
       <h2 className="text-2xl text-gray-700 font-light max-w-2xl mx-auto mt-4">
         Créez des formulaires interactifs 100% locaux, sans serveur ni base de données
